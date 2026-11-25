@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Stok Baju</title>
+<style>
+  body{font-family:system-ui,sans-serif;max-width:1000px;margin:0 auto;padding:16px;background:#f6f6f8;color:#222}
+  .card{background:#fff;border-radius:10px;padding:16px;margin-bottom:16px;box-shadow:0 1px 3px #0001}
+  input,select,button{padding:8px;font-size:14px;margin:2px 0;border:1px solid #ccc;border-radius:6px}
+  button{cursor:pointer;background:#2d6cdf;color:#fff;border:none}
+  button.gray{background:#888} button.red{background:#d33}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px}
+  label{font-size:12px;color:#555;display:block}
+  label input,label select{width:100%;box-sizing:border-box}
+  table{width:100%;border-collapse:collapse;font-size:14px}
+  th,td{padding:8px;border-bottom:1px solid #eee;text-align:left}
+  .table-wrap{overflow-x:auto}
+  tr.low{background:#fff1f0}
+  .alert{background:#ffe3e0;border:1px solid #d33;color:#a00;padding:12px;border-radius:8px;margin-bottom:16px}
+  .badge{background:#d33;color:#fff;border-radius:10px;padding:2px 8px;font-size:12px}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login" class="card" hidden>
+  <h2>Login</h2>
+  <input id="email" type="email" placeholder="Email"><br>
+  <input id="password" type="password" placeholder="Password"><br>
+  <button id="btnLogin">Masuk</button>
+  <p id="loginErr" style="color:#d33"></p>
+</div>
+
+<!-- APLIKASI -->
+<div id="app" hidden>
+  <div style="display:flex;justify-content:space-between;align-items:center">
+    <h2>📦 Stok Baju</h2>
+    <button class="gray" id="btnLogout">Keluar</button>
+  </div>
+
+  <div id="alertBox"></div>
+
+  <div class="card">
+    <h3 id="formTitle">Tambah Produk</h3>
+    <input type="hidden" id="pid">
+    <div class="grid">
+      <label>Nama baju <input id="pname"></label>
+      <label>Kategori <select id="pcat"></select></label>
+      <label>Stok <input id="pstock" type="number" min="0" value="0"></label>
+      <label>Batas stok menipis <input id="pmin" type="number" min="0" value="10"></label>
+      <label>HPP (Rp) <input id="phpp" type="number" min="0" value="0"></label>
+      <label>Markup (%) <input id="pmark" type="number" min="0" value="200"></label>
+      <label>Admin tetap (Rp) <input id="padmin" type="number" min="0" value="0"></label>
+      <label>Biaya aplikasi (%) <input id="pfee" type="number" min="0" max="99" value="0"></label>
+    </div>
+    <p id="preview"></p>
+    <button id="btnSave">Simpan</button>
+    <button class="gray" id="btnCancel" hidden>Batal edit</button>
+    <button class="gray" id="btnCat">+ Kategori baru</button>
+  </div>
+
+  <div class="card table-wrap">
+    <table>
+      <thead><tr>
+        <th>Nama</th><th>Kategori</th><th>Stok</th><th>HPP</th>
+        <th>Harga jual</th><th>Harga di aplikasi</th><th></th>
+      </tr></thead>
+      <tbody id="rows"></tbody>
+    </table>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script>
+const SUPABASE_URL = "https://jbjzoynqzyfadhjqmnzu.supabase.co/rest/v1/";
+const SUPABASE_KEY = "sb_publishable_MLK7-Vmt3wFZbNxPkzVzaA_O0oYSSn3";
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+const $ = id => document.getElementById(id);
+const rp = n => "Rp " + Math.round(n).toLocaleString("id-ID");
+const esc = s => String(s).replace(/[&<>"']/g, c =>
+  ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+
+let categories = [], products = [];
+
+// ---------- RUMUS HARGA ----------
+// harga jual = HPP x markup%
+// harga di aplikasi = (harga jual + admin tetap) / (1 - fee%)
+// supaya setelah dipotong aplikasi, ibu tetap terima harga jual
+function hitung(hpp, markup, admin, fee) {
+  const jual = hpp * markup / 100;
+  const app = (jual + admin) / (1 - fee / 100);
+  return { jual, app };
+}
+
+// ---------- LOGIN ----------
+function showScreen(loggedIn) {
+  $("login").hidden = loggedIn;
+  $("app").hidden = !loggedIn;
+}
+$("btnLogin").onclick = async () => {
+  const { error } = await sb.auth.signInWithPassword({
+    email: $("email").value, password: $("password").value
+  });
+  $("loginErr").textContent = error ? "Email atau password salah" : "";
+  if (!error) { showScreen(true); loadData(); }
+};
+$("btnLogout").onclick = async () => { await sb.auth.signOut(); showScreen(false); };
+
+// ---------- DATA ----------
+async function loadData() {
+  const c = await sb.from("categories").select("*").order("name");
+  const p = await sb.from("products").select("*").order("name");
+  if (c.error || p.error) { alert("Gagal memuat data"); return; }
+  categories = c.data; products = p.data;
+  renderCategories(); render();
+}
+
+function renderCategories() {
+  $("pcat").innerHTML = '<option value="">- Tanpa kategori -</option>' +
+    categories.map(c => `<option value="${c.id}">${esc(c.name)}</option>`).join("");
+}
+
+function render() {
+  const low = products.filter(p => p.stock < p.min_stock);
+  $("alertBox").innerHTML = low.length
+    ? `<div class="alert">⚠️ <b>${low.length} baju perlu diproduksi:</b><br>` +
+      low.map(p => `${esc(p.name)} (sisa ${p.stock})`).join("<br>") + `</div>`
+    : "";
+
+  $("rows").innerHTML = products.map(p => {
+    const cat = categories.find(c => c.id === p.category_id);
+    const h = hitung(+p.hpp, +p.markup_percent, +p.admin_fee, +p.fee_percent);
+    const isLow = p.stock < p.min_stock;
+    return `<tr class="${isLow ? "low" : ""}">
+      <td>${esc(p.name)}</td>
+      <td>${cat ? esc(cat.name) : "-"}</td>
+      <td>
+        <button data-act="minus" data-id="${p.id}">−</button>
+        <b>${p.stock}</b>
+        <button data-act="plus" data-id="${p.id}">+</button>
+        ${isLow ? '<span class="badge">Produksi!</span>' : ""}
+      </td>
+      <td>${rp(p.hpp)}</td>
+      <td>${rp(h.jual)}</td>
+      <td>${rp(h.app)}</td>
+      <td>
+        <button class="gray" data-act="edit" data-id="${p.id}">Edit</button>
+        <button class="red" data-act="del" data-id="${p.id}">Hapus</button>
+      </td></tr>`;
+  }).join("");
+}
+
+// ---------- AKSI TABEL ----------
+$("rows").onclick = async e => {
+  const b = e.target.closest("button"); if (!b) return;
+  const id = +b.dataset.id, p = products.find(x => x.id === id);
+  if (b.dataset.act === "plus" || b.dataset.act === "minus") {
+    const stock = Math.max(0, p.stock + (b.dataset.act === "plus" ? 1 : -1));
+    await sb.from("products").update({ stock }).eq("id", id);
+    loadData();
+  } else if (b.dataset.act === "del") {
+    if (confirm(`Hapus "${p.name}"?`)) { await sb.from("products").delete().eq("id", id); loadData(); }
+  } else if (b.dataset.act === "edit") {
+    $("pid").value = p.id; $("pname").value = p.name; $("pcat").value = p.category_id || "";
+    $("pstock").value = p.stock; $("pmin").value = p.min_stock; $("phpp").value = p.hpp;
+    $("pmark").value = p.markup_percent; $("padmin").value = p.admin_fee; $("pfee").value = p.fee_percent;
+    $("formTitle").textContent = "Edit Produk"; $("btnCancel").hidden = false;
+    updatePreview(); window.scrollTo(0, 0);
+  }
+};
+
+// ---------- FORM ----------
+function resetForm() {
+  ["pid","pname"].forEach(i => $(i).value = "");
+  $("pcat").value = ""; $("pstock").value = 0; $("pmin").value = 10;
+  $("phpp").value = 0; $("pmark").value = 200; $("padmin").value = 0; $("pfee").value = 0;
+  $("formTitle").textContent = "Tambah Produk"; $("btnCancel").hidden = true;
+  updatePreview();
+}
+function updatePreview() {
+  const h = hitung(+$("phpp").value, +$("pmark").value, +$("padmin").value, +$("pfee").value);
+  $("preview").innerHTML = `Harga jual: <b>${rp(h.jual)}</b> &nbsp;|&nbsp; Harga di aplikasi: <b>${rp(h.app)}</b>`;
+}
+["phpp","pmark","padmin","pfee"].forEach(i => $(i).oninput = updatePreview);
+
+$("btnSave").onclick = async () => {
+  const row = {
+    name: $("pname").value.trim(),
+    category_id: $("pcat").value ? +$("pcat").value : null,
+    stock: +$("pstock").value, min_stock: +$("pmin").value,
+    hpp: +$("phpp").value, markup_percent: +$("pmark").value,
+    admin_fee: +$("padmin").value, fee_percent: +$("pfee").value
+  };
+  if (!row.name) return alert("Nama baju wajib diisi");
+  const id = $("pid").value;
+  const { error } = id
+    ? await sb.from("products").update(row).eq("id", id)
+    : await sb.from("products").insert(row);
+  if (error) return alert("Gagal menyimpan: " + error.message);
+  resetForm(); loadData();
+};
+$("btnCancel").onclick = resetForm;
+
+$("btnCat").onclick = async () => {
+  const name = prompt("Nama kategori baru:");
+  if (!name || !name.trim()) return;
+  const { error } = await sb.from("categories").insert({ name: name.trim() });
+  if (error) alert("Gagal: " + error.message);
+  loadData();
+};
+
+// ---------- MULAI ----------
+(async () => {
+  const { data: { session } } = await sb.auth.getSession();
+  showScreen(!!session);
+  if (session) loadData();
+  updatePreview();
+})();
+</script>
+</body>
+</html>
