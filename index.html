@@ -3,107 +3,200 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#D81B77">
 <title>Stok Baju</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Nunito:wght@500;700&display=swap" rel="stylesheet">
 <style>
-  body{font-family:system-ui,sans-serif;max-width:1000px;margin:0 auto;padding:16px;background:#f6f6f8;color:#222}
-  .card{background:#fff;border-radius:10px;padding:16px;margin-bottom:16px;box-shadow:0 1px 3px #0001}
-  input,select,button{padding:8px;font-size:14px;margin:2px 0;border:1px solid #ccc;border-radius:6px}
-  button{cursor:pointer;background:#2d6cdf;color:#fff;border:none}
-  button.gray{background:#888} button.red{background:#d33}
-  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px}
-  label{font-size:12px;color:#555;display:block}
-  label input,label select{width:100%;box-sizing:border-box}
-  table{width:100%;border-collapse:collapse;font-size:14px}
-  th,td{padding:8px;border-bottom:1px solid #eee;text-align:left}
-  .table-wrap{overflow-x:auto}
-  tr.low{background:#fff1f0}
-  .alert{background:#ffe3e0;border:1px solid #d33;color:#a00;padding:12px;border-radius:8px;margin-bottom:16px}
-  .badge{background:#d33;color:#fff;border-radius:10px;padding:2px 8px;font-size:12px}
+:root{--pink:#D81B77;--plum:#3A0F3B;--lemon:#FFE14D;--blush:#FFF1F6;--red:#E8352B;--ink:#2a1230;--mute:#8a6f8f}
+*{box-sizing:border-box}
+body{margin:0;font-family:Nunito,system-ui,sans-serif;background:var(--blush);color:var(--ink);padding-bottom:96px}
+h1,h2,h3,.disp{font-family:"Baloo 2",system-ui,sans-serif;margin:0}
+button,input,select{font:inherit}
+button{cursor:pointer;border:0;border-radius:12px;padding:9px 14px;font-weight:700;background:var(--pink);color:#fff}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid var(--lemon);outline-offset:2px}
+input,select{width:100%;padding:10px;border:2px solid #ecc6d8;border-radius:12px;background:#fff;color:var(--ink)}
+label{font-size:12px;font-weight:700;color:var(--mute);display:block}
+[hidden]{display:none!important}
+
+/* LOGIN */
+#login{min-height:100vh;display:grid;place-items:center;padding:20px;background:var(--pink)}
+.logincard{background:#fff;border-radius:24px;padding:28px;width:100%;max-width:360px;display:grid;gap:10px;border:3px dashed var(--plum);outline:6px solid #fff;outline-offset:-12px}
+.logincard h1{font-size:44px;line-height:1;color:var(--pink)}
+.logincard p{margin:0 0 6px;color:var(--mute)}
+#loginErr{color:var(--red);font-weight:700;margin:0;min-height:1em}
+
+/* HEADER */
+header{background:var(--pink);color:#fff;padding:18px 16px 54px;display:flex;justify-content:space-between;align-items:flex-start}
+header h1{font-size:34px;line-height:1}
+header small{opacity:.85}
+.btnout{background:#ffffff30;padding:7px 12px;font-size:13px}
+main{max-width:960px;margin:-38px auto 0;padding:0 14px}
+
+/* STATISTIK */
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
+.stat{background:#fff;border-radius:18px;padding:12px;text-align:center;border:0;color:var(--ink);box-shadow:0 4px 0 var(--plum)}
+.stat b{display:block;font:800 30px/1 "Baloo 2",sans-serif;color:var(--pink)}
+.stat span{font-size:12px;color:var(--mute);font-weight:700}
+.stat.warn{background:var(--lemon)}
+.stat.warn b{color:var(--red)}
+.stat.on{outline:3px solid var(--red)}
+
+/* PERINGATAN */
+.alert{background:var(--lemon);border:3px solid var(--plum);border-radius:18px;padding:12px 14px;margin-bottom:14px}
+.alert h3{font-size:18px}
+.alert ul{margin:6px 0 0;padding-left:18px}
+
+/* FILTER */
+.tools{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.tools input{flex:1 1 180px}
+.chips{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;flex:1 1 100%}
+.chip{background:#fff;color:var(--plum);border:2px solid var(--plum);white-space:nowrap;padding:6px 12px;border-radius:99px}
+.chip.on{background:var(--plum);color:#fff}
+
+/* KARTU PRODUK = HANG TAG */
+.list{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:18px;padding-top:14px}
+.tag{position:relative;background:#fff;border-radius:20px;padding:34px 16px 16px;border:3px solid var(--plum)}
+.tag::before{content:"";position:absolute;top:10px;left:50%;width:16px;height:16px;margin-left:-8px;border-radius:50%;background:var(--blush);border:3px solid var(--plum)}
+.tag.low{border-color:var(--red);box-shadow:0 0 0 4px #e8352b2e}
+.thead{display:flex;justify-content:space-between;gap:8px;align-items:flex-start}
+.thead h3{font-size:22px;line-height:1.1}
+.cat{display:inline-block;background:var(--lemon);color:var(--plum);font-size:12px;font-weight:800;padding:2px 10px;border-radius:99px;margin-bottom:4px}
+.acts button{background:#f6e4ee;color:var(--plum);padding:6px 9px;margin-left:3px}
+.price{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:12px 0;padding:10px 0;border-top:2px dashed #e3b9ce;border-bottom:2px dashed #e3b9ce}
+.price small{display:block;font-size:11px;color:var(--mute);font-weight:700}
+.price b{font-size:14px}
+.price .big b{font:800 20px/1.1 "Baloo 2",sans-serif;color:var(--pink)}
+.sizes{display:grid;gap:8px}
+.sz{display:flex;align-items:center;justify-content:space-between;border:2px dashed #cda;border-color:#d8aac3;border-radius:12px;padding:6px 8px}
+.sz .n{font:800 18px "Baloo 2",sans-serif;min-width:64px}
+.sz.low{background:#ffe9e6;border-color:var(--red)}
+.sz.low .n{color:var(--red)}
+.step{display:flex;align-items:center;gap:10px}
+.step button{width:36px;height:36px;padding:0;font-size:20px;line-height:1;border-radius:50%}
+.step button.m{background:var(--plum)}
+.step b{min-width:28px;text-align:center;font-size:18px}
+.mk{background:var(--red);color:#fff;font-size:11px;font-weight:800;padding:2px 8px;border-radius:99px}
+.total{margin-top:10px;font-size:13px;color:var(--mute);font-weight:700}
+.empty{text-align:center;padding:40px 10px;color:var(--mute)}
+
+/* TOMBOL TAMBAH */
+.fab{position:fixed;right:16px;bottom:16px;background:var(--plum);box-shadow:0 5px 0 var(--pink);padding:14px 20px;font-size:16px;border-radius:99px;z-index:5}
+
+/* FORM */
+.modal{position:fixed;inset:0;background:#3a0f3bcc;display:flex;align-items:flex-end;justify-content:center;z-index:10}
+.sheet{background:#fff;width:100%;max-width:560px;max-height:92vh;overflow-y:auto;border-radius:24px 24px 0 0;padding:18px;animation:up .25s ease-out}
+@keyframes up{from{transform:translateY(40px);opacity:0}}
+@media (prefers-reduced-motion:reduce){.sheet{animation:none}}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:10px 0}
+.grid .full{grid-column:1/-1}
+.szgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:6px 0 10px}
+.szgrid label{text-align:center;color:var(--plum);font-size:14px;font-family:"Baloo 2",sans-serif;font-weight:800}
+.szgrid input{text-align:center;padding:8px 2px}
+.hint{font-size:12px;color:var(--mute);margin:0}
+.preview{background:var(--blush);border-radius:12px;padding:10px;font-weight:700;margin:6px 0 12px}
+.row{display:flex;gap:8px;flex-wrap:wrap}
+.gray{background:#e9d5e1;color:var(--plum)}
 </style>
 </head>
 <body>
 
 <!-- LOGIN -->
-<div id="login" class="card" hidden>
-  <h2>Login</h2>
-  <input id="email" type="email" placeholder="Email"><br>
-  <input id="password" type="password" placeholder="Password"><br>
-  <button id="btnLogin">Masuk</button>
-  <p id="loginErr" style="color:#d33"></p>
+<div id="login" hidden>
+  <div class="logincard">
+    <h1>Stok Baju</h1>
+    <p>Masuk untuk cek stok hari ini.</p>
+    <input id="email" type="email" placeholder="Email" autocomplete="username">
+    <input id="password" type="password" placeholder="Password" autocomplete="current-password">
+    <button id="btnLogin">Masuk</button>
+    <p id="loginErr"></p>
+  </div>
 </div>
 
 <!-- APLIKASI -->
 <div id="app" hidden>
-  <div style="display:flex;justify-content:space-between;align-items:center">
-    <h2>📦 Stok Baju</h2>
-    <button class="gray" id="btnLogout">Keluar</button>
-  </div>
+  <header>
+    <div><h1>Stok Baju</h1><small>Cek stok, tanpa hitung manual</small></div>
+    <button class="btnout" id="btnLogout">Keluar</button>
+  </header>
 
-  <div id="alertBox"></div>
+  <main>
+    <div class="stats">
+      <div class="stat"><b id="sProd">0</b><span>Model baju</span></div>
+      <div class="stat"><b id="sPcs">0</b><span>Total pcs</span></div>
+      <button class="stat warn" id="sLowBtn"><b id="sLow">0</b><span>Perlu produksi</span></button>
+    </div>
 
-  <div class="card">
-    <h3 id="formTitle">Tambah Produk</h3>
+    <div id="alertBox"></div>
+
+    <div class="tools">
+      <input id="search" type="search" placeholder="Cari nama baju...">
+      <div class="chips" id="chips"></div>
+    </div>
+
+    <div class="list" id="list"></div>
+  </main>
+
+  <button class="fab" id="btnAdd">+ Tambah baju</button>
+</div>
+
+<!-- FORM TAMBAH / EDIT -->
+<div class="modal" id="modal" hidden>
+  <div class="sheet">
+    <h2 id="formTitle">Tambah baju</h2>
     <input type="hidden" id="pid">
     <div class="grid">
-      <label>Nama baju <input id="pname"></label>
-      <label>Kategori <select id="pcat"></select></label>
-      <label>Stok <input id="pstock" type="number" min="0" value="0"></label>
-      <label>Batas stok menipis <input id="pmin" type="number" min="0" value="10"></label>
-      <label>HPP (Rp) <input id="phpp" type="number" min="0" value="0"></label>
-      <label>Markup (%) <input id="pmark" type="number" min="0" value="200"></label>
-      <label>Admin tetap (Rp) <input id="padmin" type="number" min="0" value="0"></label>
-      <label>Biaya aplikasi (%) <input id="pfee" type="number" min="0" max="99" value="0"></label>
+      <label class="full">Nama baju <input id="pname" placeholder="Contoh: Daster Batik"></label>
+      <label class="full">Kategori
+        <div class="row" style="flex-wrap:nowrap"><select id="pcat"></select><button class="gray" id="btnCat" type="button">+ Baru</button></div>
+      </label>
+      <label>HPP (Rp) <input id="phpp" type="number" min="0" value="0" inputmode="numeric"></label>
+      <label>Markup (%) <input id="pmark" type="number" min="0" value="200" inputmode="numeric"></label>
+      <label>Admin tetap (Rp) <input id="padmin" type="number" min="0" value="0" inputmode="numeric"></label>
+      <label>Biaya aplikasi (%) <input id="pfee" type="number" min="0" max="99" value="0" inputmode="numeric"></label>
+      <label class="full">Produksi lagi kalau stok per ukuran kurang dari <input id="pmin" type="number" min="0" value="10" inputmode="numeric"></label>
     </div>
-    <p id="preview"></p>
-    <button id="btnSave">Simpan</button>
-    <button class="gray" id="btnCancel" hidden>Batal edit</button>
-    <button class="gray" id="btnCat">+ Kategori baru</button>
-  </div>
-
-  <div class="card table-wrap">
-    <table>
-      <thead><tr>
-        <th>Nama</th><th>Kategori</th><th>Stok</th><th>HPP</th>
-        <th>Harga jual</th><th>Harga di aplikasi</th><th></th>
-      </tr></thead>
-      <tbody id="rows"></tbody>
-    </table>
+    <label>Stok per ukuran</label>
+    <p class="hint">Isi angka untuk ukuran yang dijual. Kosongkan kalau tidak ada.</p>
+    <div class="szgrid" id="szgrid"></div>
+    <div class="preview" id="preview"></div>
+    <div class="row">
+      <button id="btnSave">Simpan</button>
+      <button class="gray" id="btnCancel" type="button">Batal</button>
+    </div>
   </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script>
 const SUPABASE_URL = "https://jbjzoynqzyfadhjqmnzu.supabase.co";
-const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpianpveW5xenlmYWRoanFtbnp1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTU1NzUzNDMsImV4cCI6MjExMTE1MTM0M30.w9cWLkfE3m4rKxVX6Y-RVdEoJUJBoaHs98W7rkMBvpg";
+const SUPABASE_KEY = "sb_publishable_MLK7-Vmt3wFZbNxPkzVzaA_O0oYSSn3";
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// Urutan ukuran: terkecil ke terbesar
+const SIZES = ["All Size","XS","S","M","L","XL","XXL","3XL"];
 
 const $ = id => document.getElementById(id);
 const rp = n => "Rp " + Math.round(n).toLocaleString("id-ID");
 const esc = s => String(s).replace(/[&<>"']/g, c =>
   ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 
-let categories = [], products = [];
+let categories = [], products = [], filterCat = "", query = "", onlyLow = false;
 
-// ---------- RUMUS HARGA ----------
 // harga jual = HPP x markup%
 // harga di aplikasi = (harga jual + admin tetap) / (1 - fee%)
-// supaya setelah dipotong aplikasi, ibu tetap terima harga jual
 function hitung(hpp, markup, admin, fee) {
   const jual = hpp * markup / 100;
-  const app = (jual + admin) / (1 - fee / 100);
+  const app = (jual + admin) / (1 - Math.min(fee, 99) / 100);
   return { jual, app };
 }
+const sortSizes = arr => [...arr].sort((a, b) => SIZES.indexOf(a.size) - SIZES.indexOf(b.size));
 
 // ---------- LOGIN ----------
-function showScreen(loggedIn) {
-  $("login").hidden = loggedIn;
-  $("app").hidden = !loggedIn;
-}
+function showScreen(on) { $("login").hidden = on; $("app").hidden = !on; }
 $("btnLogin").onclick = async () => {
-  const { error } = await sb.auth.signInWithPassword({
-    email: $("email").value, password: $("password").value
-  });
-  $("loginErr").textContent = error ? "Error: " + error.message : "";
+  const { error } = await sb.auth.signInWithPassword({ email: $("email").value.trim(), password: $("password").value });
+  $("loginErr").textContent = error ? "Gagal masuk: " + error.message : "";
   if (!error) { showScreen(true); loadData(); }
 };
 $("btnLogout").onclick = async () => { await sb.auth.signOut(); showScreen(false); };
@@ -111,104 +204,182 @@ $("btnLogout").onclick = async () => { await sb.auth.signOut(); showScreen(false
 // ---------- DATA ----------
 async function loadData() {
   const c = await sb.from("categories").select("*").order("name");
-  const p = await sb.from("products").select("*").order("name");
-  if (c.error || p.error) { alert("Gagal memuat data"); return; }
+  const p = await sb.from("products").select("*, product_sizes(*)").order("name");
+  if (c.error || p.error) { alert("Gagal memuat data: " + (c.error || p.error).message); return; }
   categories = c.data; products = p.data;
   renderCategories(); render();
 }
-
 function renderCategories() {
-  $("pcat").innerHTML = '<option value="">- Tanpa kategori -</option>' +
+  $("pcat").innerHTML = '<option value="">Tanpa kategori</option>' +
     categories.map(c => `<option value="${c.id}">${esc(c.name)}</option>`).join("");
 }
 
+// ---------- TAMPILAN ----------
 function render() {
-  const low = products.filter(p => p.stock < p.min_stock);
-  $("alertBox").innerHTML = low.length
-    ? `<div class="alert">⚠️ <b>${low.length} baju perlu diproduksi:</b><br>` +
-      low.map(p => `${esc(p.name)} (sisa ${p.stock})`).join("<br>") + `</div>`
+  // statistik
+  const lowItems = [];
+  let pcs = 0;
+  products.forEach(p => p.product_sizes.forEach(s => {
+    pcs += s.stock;
+    if (s.stock < p.min_stock) lowItems.push({ p, s });
+  }));
+  $("sProd").textContent = products.length;
+  $("sPcs").textContent = pcs;
+  $("sLow").textContent = lowItems.length;
+  $("sLowBtn").classList.toggle("on", onlyLow);
+
+  // banner peringatan
+  $("alertBox").innerHTML = lowItems.length
+    ? `<div class="alert"><h3>Saatnya produksi</h3><ul>` +
+      lowItems.map(({ p, s }) => `<li><b>${esc(p.name)}</b> ukuran ${esc(s.size)}: sisa ${s.stock}</li>`).join("") +
+      `</ul></div>`
     : "";
 
-  $("rows").innerHTML = products.map(p => {
-    const cat = categories.find(c => c.id === p.category_id);
-    const h = hitung(+p.hpp, +p.markup_percent, +p.admin_fee, +p.fee_percent);
-    const isLow = p.stock < p.min_stock;
-    return `<tr class="${isLow ? "low" : ""}">
-      <td>${esc(p.name)}</td>
-      <td>${cat ? esc(cat.name) : "-"}</td>
-      <td>
-        <button data-act="minus" data-id="${p.id}">−</button>
-        <b>${p.stock}</b>
-        <button data-act="plus" data-id="${p.id}">+</button>
-        ${isLow ? '<span class="badge">Produksi!</span>' : ""}
-      </td>
-      <td>${rp(p.hpp)}</td>
-      <td>${rp(h.jual)}</td>
-      <td>${rp(h.app)}</td>
-      <td>
-        <button class="gray" data-act="edit" data-id="${p.id}">Edit</button>
-        <button class="red" data-act="del" data-id="${p.id}">Hapus</button>
-      </td></tr>`;
-  }).join("");
+  // chip kategori
+  const chip = (id, name) => `<button class="chip ${filterCat === id ? "on" : ""}" data-cat="${id}">${esc(name)}</button>`;
+  $("chips").innerHTML = chip("", "Semua") + categories.map(c => chip(String(c.id), c.name)).join("");
+
+  // daftar produk
+  const shown = products.filter(p =>
+    (!filterCat || String(p.category_id) === filterCat) &&
+    p.name.toLowerCase().includes(query.toLowerCase()) &&
+    (!onlyLow || p.product_sizes.some(s => s.stock < p.min_stock)));
+
+  $("list").innerHTML = shown.length ? shown.map(card).join("") :
+    `<div class="empty">Belum ada baju di sini. Tekan <b>+ Tambah baju</b> untuk mulai.</div>`;
 }
 
-// ---------- AKSI TABEL ----------
-$("rows").onclick = async e => {
+function card(p) {
+  const cat = categories.find(c => c.id === p.category_id);
+  const h = hitung(+p.hpp, +p.markup_percent, +p.admin_fee, +p.fee_percent);
+  const sizes = sortSizes(p.product_sizes);
+  const anyLow = sizes.some(s => s.stock < p.min_stock);
+  const total = sizes.reduce((a, s) => a + s.stock, 0);
+  return `<div class="tag ${anyLow ? "low" : ""}">
+    <div class="thead">
+      <div>${cat ? `<span class="cat">${esc(cat.name)}</span>` : ""}<h3>${esc(p.name)}</h3></div>
+      <div class="acts">
+        <button data-act="edit" data-id="${p.id}" aria-label="Edit">Edit</button>
+        <button data-act="del" data-id="${p.id}" aria-label="Hapus">Hapus</button>
+      </div>
+    </div>
+    <div class="price">
+      <div><small>HPP</small><b>${rp(p.hpp)}</b></div>
+      <div class="big"><small>Harga jual</small><b>${rp(h.jual)}</b></div>
+      <div><small>Di aplikasi</small><b>${rp(h.app)}</b></div>
+    </div>
+    <div class="sizes">${sizes.map(s => {
+      const low = s.stock < p.min_stock;
+      return `<div class="sz ${low ? "low" : ""}">
+        <span class="n">${esc(s.size)}</span>
+        ${low ? '<span class="mk">Produksi</span>' : ""}
+        <div class="step">
+          <button class="m" data-act="minus" data-sid="${s.id}" aria-label="Kurangi">−</button>
+          <b>${s.stock}</b>
+          <button data-act="plus" data-sid="${s.id}" aria-label="Tambah">+</button>
+        </div></div>`;
+    }).join("")}</div>
+    <div class="total">Total ${total} pcs</div>
+  </div>`;
+}
+
+// ---------- AKSI ----------
+$("list").onclick = async e => {
   const b = e.target.closest("button"); if (!b) return;
-  const id = +b.dataset.id, p = products.find(x => x.id === id);
-  if (b.dataset.act === "plus" || b.dataset.act === "minus") {
-    const stock = Math.max(0, p.stock + (b.dataset.act === "plus" ? 1 : -1));
-    await sb.from("products").update({ stock }).eq("id", id);
-    loadData();
-  } else if (b.dataset.act === "del") {
-    if (confirm(`Hapus "${p.name}"?`)) { await sb.from("products").delete().eq("id", id); loadData(); }
-  } else if (b.dataset.act === "edit") {
-    $("pid").value = p.id; $("pname").value = p.name; $("pcat").value = p.category_id || "";
-    $("pstock").value = p.stock; $("pmin").value = p.min_stock; $("phpp").value = p.hpp;
-    $("pmark").value = p.markup_percent; $("padmin").value = p.admin_fee; $("pfee").value = p.fee_percent;
-    $("formTitle").textContent = "Edit Produk"; $("btnCancel").hidden = false;
-    updatePreview(); window.scrollTo(0, 0);
+  const act = b.dataset.act;
+  if (act === "plus" || act === "minus") {
+    const sid = +b.dataset.sid;
+    const size = products.flatMap(p => p.product_sizes).find(s => s.id === sid);
+    const stock = Math.max(0, size.stock + (act === "plus" ? 1 : -1));
+    if (stock === size.stock) return;
+    const { error } = await sb.from("product_sizes").update({ stock }).eq("id", sid);
+    if (error) return alert("Gagal mengubah stok: " + error.message);
+    size.stock = stock; render();
+  } else if (act === "del") {
+    const p = products.find(x => x.id === +b.dataset.id);
+    if (confirm(`Hapus "${p.name}" beserta semua ukurannya?`)) {
+      const { error } = await sb.from("products").delete().eq("id", p.id);
+      if (error) return alert("Gagal menghapus: " + error.message);
+      loadData();
+    }
+  } else if (act === "edit") {
+    openForm(products.find(x => x.id === +b.dataset.id));
   }
 };
+$("chips").onclick = e => { const b = e.target.closest("button"); if (b) { filterCat = b.dataset.cat; render(); } };
+$("search").oninput = e => { query = e.target.value; render(); };
+$("sLowBtn").onclick = () => { onlyLow = !onlyLow; render(); };
 
 // ---------- FORM ----------
-function resetForm() {
-  ["pid","pname"].forEach(i => $(i).value = "");
-  $("pcat").value = ""; $("pstock").value = 0; $("pmin").value = 10;
-  $("phpp").value = 0; $("pmark").value = 200; $("padmin").value = 0; $("pfee").value = 0;
-  $("formTitle").textContent = "Tambah Produk"; $("btnCancel").hidden = true;
-  updatePreview();
-}
+$("szgrid").innerHTML = SIZES.map((s, i) =>
+  `<label>${s}<input id="sz${i}" type="number" min="0" inputmode="numeric" placeholder="-"></label>`).join("");
+
 function updatePreview() {
   const h = hitung(+$("phpp").value, +$("pmark").value, +$("padmin").value, +$("pfee").value);
-  $("preview").innerHTML = `Harga jual: <b>${rp(h.jual)}</b> &nbsp;|&nbsp; Harga di aplikasi: <b>${rp(h.app)}</b>`;
+  $("preview").innerHTML = `Harga jual: ${rp(h.jual)}<br>Harga di aplikasi: ${rp(h.app)}`;
 }
-["phpp","pmark","padmin","pfee"].forEach(i => $(i).oninput = updatePreview);
+["phpp", "pmark", "padmin", "pfee"].forEach(i => $(i).oninput = updatePreview);
+
+function openForm(p) {
+  $("pid").value = p ? p.id : "";
+  $("formTitle").textContent = p ? "Edit baju" : "Tambah baju";
+  $("pname").value = p ? p.name : "";
+  $("pcat").value = p && p.category_id ? p.category_id : "";
+  $("phpp").value = p ? p.hpp : 0;
+  $("pmark").value = p ? p.markup_percent : 200;
+  $("padmin").value = p ? p.admin_fee : 0;
+  $("pfee").value = p ? p.fee_percent : 0;
+  $("pmin").value = p ? p.min_stock : 10;
+  SIZES.forEach((s, i) => {
+    const row = p && p.product_sizes.find(x => x.size === s);
+    $("sz" + i).value = row ? row.stock : "";
+  });
+  updatePreview();
+  $("modal").hidden = false;
+}
+const closeForm = () => { $("modal").hidden = true; };
+$("btnAdd").onclick = () => openForm(null);
+$("btnCancel").onclick = closeForm;
 
 $("btnSave").onclick = async () => {
   const row = {
     name: $("pname").value.trim(),
     category_id: $("pcat").value ? +$("pcat").value : null,
-    stock: +$("pstock").value, min_stock: +$("pmin").value,
-    hpp: +$("phpp").value, markup_percent: +$("pmark").value,
-    admin_fee: +$("padmin").value, fee_percent: +$("pfee").value
+    min_stock: +$("pmin").value, hpp: +$("phpp").value,
+    markup_percent: +$("pmark").value, admin_fee: +$("padmin").value, fee_percent: +$("pfee").value
   };
   if (!row.name) return alert("Nama baju wajib diisi");
-  const id = $("pid").value;
-  const { error } = id
-    ? await sb.from("products").update(row).eq("id", id)
-    : await sb.from("products").insert(row);
-  if (error) return alert("Gagal menyimpan: " + error.message);
-  resetForm(); loadData();
+  const sizeRows = SIZES.map((s, i) => ({ size: s, v: $("sz" + i).value }))
+    .filter(x => x.v !== "").map(x => ({ size: x.size, stock: Math.max(0, +x.v) }));
+  if (!sizeRows.length) return alert("Isi stok minimal satu ukuran");
+
+  $("btnSave").disabled = true;
+  let pid = $("pid").value, err;
+  if (pid) {
+    ({ error: err } = await sb.from("products").update(row).eq("id", pid));
+  } else {
+    const r = await sb.from("products").insert(row).select().single();
+    err = r.error; if (!err) pid = r.data.id;
+  }
+  if (!err) {
+    await sb.from("product_sizes").delete().eq("product_id", pid);
+    ({ error: err } = await sb.from("product_sizes").insert(sizeRows.map(s => ({ ...s, product_id: +pid }))));
+  }
+  $("btnSave").disabled = false;
+  if (err) return alert("Gagal menyimpan: " + err.message);
+  closeForm(); loadData();
 };
-$("btnCancel").onclick = resetForm;
 
 $("btnCat").onclick = async () => {
   const name = prompt("Nama kategori baru:");
   if (!name || !name.trim()) return;
   const { error } = await sb.from("categories").insert({ name: name.trim() });
-  if (error) alert("Gagal: " + error.message);
-  loadData();
+  if (error) return alert("Gagal: " + error.message);
+  const c = await sb.from("categories").select("*").order("name");
+  categories = c.data; renderCategories();
+  const added = categories.find(x => x.name === name.trim());
+  if (added) $("pcat").value = added.id;
+  render();
 };
 
 // ---------- MULAI ----------
@@ -216,7 +387,6 @@ $("btnCat").onclick = async () => {
   const { data: { session } } = await sb.auth.getSession();
   showScreen(!!session);
   if (session) loadData();
-  updatePreview();
 })();
 </script>
 </body>
