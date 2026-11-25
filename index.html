@@ -103,7 +103,7 @@ $("btnLogin").onclick = async () => {
   const { error } = await sb.auth.signInWithPassword({
     email: $("email").value, password: $("password").value
   });
-  $("loginErr").textContent = error ? "Email atau password salah" : "";
+  $("loginErr").textContent = error ? "Error: " + error.message : "";
   if (!error) { showScreen(true); loadData(); }
 };
 $("btnLogout").onclick = async () => { await sb.auth.signOut(); showScreen(false); };
